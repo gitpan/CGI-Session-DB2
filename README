@@ -1,0 +1,17 @@
+CGI::Session::DB2 - DB2 backing for CGI::Session by Darin McBride
+
+Copyright 2004 Darin McBride
+
+QUICK START:
+
+    Finish reading this README.  Install by doing:
+        perl Build.PL
+        Build
+        Build install
+
+    At this point, the source tree is no longer needed - you can delete
+    it if you wish.
+
+
+
+
