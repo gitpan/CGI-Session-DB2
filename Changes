@@ -3,3 +3,6 @@ Revision history for CGI::Session::DB2
 0.01
         * Original version.
 
+0.02
+        + Added more docs to the README.  Being released under the
+          "release early, release often" ideology.

@@ -7,7 +7,7 @@ use base qw(
     CGI::Session::Serialize::Default
 );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -203,14 +203,41 @@ sub _prepare_attributes {
     { distinct => 0 }
 }
 
-1;
-
 =head1 STORAGE
 
 To store session data in a DB2 database, you first need to create a suitable
 table for it with the following command:
 
-    perl -MCGI::Session::DB2 -e 'CGI::Session::DB2->create(DBName=>q[dbname],Schema=>q[cgisess],Table=>q[cgisess]);
+    perl -MCGI::Session::DB2 -e 'CGI::Session::DB2->create(DBName=>q[dbname],Schema=>q[cgisess],Table=>q[cgisess])'
+
+All other CGI::Session options documented for use with CGI::Session::DB2
+are valid here - it is recommended that you put your options into a
+hash somewhere in your code, and accept a setup or create option that
+would simply reuse that hash in calling create.
+
+    my $options = {
+        DBName => q[web],
+        Schema => q[cgisess],
+        Table  => q[cgisess],
+    };
+
+    if ($ARGV[0] and $ARGV[0] eq 'create')
+    {
+        CGI::Session::DB2->create($options);
+        exit(0);
+    }
+    my $session = new CGI::Session('driver:DB2', $query, $options);
+    # ...
+
+Obviously, this is not something you do right away - you need to make
+a few decisions first, such as what database to use, schema, etc.
+Also note that this create option will only create a local database.
+I'm not sure that DB2 supports creating remote databases.  However,
+if your database already is remote, and cataloged locally, the create
+option may be able to create the table for you.
+
+In the remote database case, the DBName should be the locally cataloged
+name, which is not necessarily the same as the remote database name.
 
 For more information on database creation, see C<DB2::db>.  Also note DB2::db's
 requirement for DB2INSTANCE to be set.  You will need to set this in your own
@@ -260,5 +287,4 @@ L<Apache::Session|Apache::Session> - another fine alternative to CGI::Session
 
 =cut
 
-
-
+1;

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: CGI-Session-DB2
-version: 0.01
+version: 0.02
 author:
   - Darin McBride <dmcbride@cpan.org>
 abstract: DB2 driver for CGI::Session
@@ -12,11 +12,11 @@ requires:
 provides:
   CGI::Session::DB2:
     file: lib/CGI/Session/DB2.pm
-    version: 0.01
+    version: 0.02
   CGI::Session::DB2::Cgisess:
     file: lib/CGI/Session/DB2.pm
-    version: 0.01
+    version: 0.02
   CGI::Session::DB2::db:
     file: lib/CGI/Session/DB2.pm
-    version: 0.01
+    version: 0.02
 generated_by: Module::Build version 0.24

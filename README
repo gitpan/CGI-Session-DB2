@@ -12,6 +12,40 @@ QUICK START:
     At this point, the source tree is no longer needed - you can delete
     it if you wish.
 
+SETTING UP DATABASE STORE
 
+    To create the database and table, you will need to call CGI::Session::DB2
+    in a manner similar to your actual end use.
+        perl -MCGI::Session::DB2 -e \
+            'CGI::Session::DB2->create(
+                DBName=>q[dbname],Schema=>q[cgisess],Table=>q[cgisess])'
 
+    All other CGI::Session options documented for use with CGI::Session::DB2
+    are valid here - it is recommended that you put your options into a
+    hash somewhere in your code, and accept a setup or create option that
+    would simply reuse that hash in calling create.
+
+        my $options = {
+            DBName => q[web],
+            Schema => q[cgisess],
+            Table  => q[cgisess],
+        };
+
+        if ($ARGV[0] and $ARGV[0] eq 'create')
+        {
+            CGI::Session::DB2->create($options);
+            exit(0);
+        }
+        my $session = new CGI::Session('driver:DB2', $query, $options);
+        # ...
+
+    Obviously, this is not something you do right away - you need to make
+    a few decisions first, such as what database to use, schema, etc.
+    Also note that this create option will only create a local database.
+    I'm not sure that DB2 supports creating remote databases.  However,
+    if your database already is remote, and cataloged locally, the create
+    option may be able to create the table for you.
+
+    In the remote database case, the DBName should be the locally cataloged
+    name, which is not necessarily the same as the remote database name.
 
