@@ -7,7 +7,7 @@ use base qw(
     CGI::Session::Serialize::Default
 );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -54,6 +54,8 @@ User name for authentication
 
 User password for authentication
 
+=back
+
 =cut
 
 # stores the serialized data. Returns 1 for sucess, undef otherwise
@@ -69,6 +71,14 @@ sub store
         $row->column(id => $sid);
     }
     $row->column(asession => $self->freeze($data));
+    if ($self->expire())
+    {
+        $row->column(expires  => $self->expire() + $self->atime());
+    }
+    else
+    {
+        $row->column(expires => undef);
+    }
 
     $row->save();
 }
@@ -137,7 +147,7 @@ sub _setup_db
     $db->add_table($options->{Table} || 'Cgisess');
     my $table = $db->get_table($options->{Table} || 'Cgisess');
     $table->{schema_name} = $options->{Schema} || 'cgisess';
-    $table->{table_name} = $options->{Table} || 'cgisess';
+    $table->{table_name} = $options->{Table} || 'Cgisess';
 
     ($db,$table);
 }
@@ -155,15 +165,20 @@ sub create
     $db->create_db();
 }
 
-=item Table
+# quick clean up of expired sessions.
+sub cleanup
+{
+    my $name = shift;
+    my $options = $_[0];
+    unless (ref $options eq 'HASH')
+    {
+        $options = { @_ };
+    }
+    my ($db, $table) = _setup_db($options);
+    $table->delete_where('EXPIRES < ?',
+                         DB2::Row->time_to_timestamp(time));
+}
 
-Table name to use.  Defaults to 'cgisess'.
-
-=item Schema
-
-Schema name to use.  Defaults to 'cgisess'.
-    
-=cut
 
 package CGI::Session::DB2::db;
 
@@ -193,6 +208,10 @@ sub data_order {
      {
          COLUMN => 'ASESSION',
          TYPE   => 'LONG VARCHAR',
+     },
+     {
+         COLUMN => 'EXPIRES',
+         TYPE   => 'TIMESTAMP',
      },
     ];
 }
@@ -242,6 +261,24 @@ name, which is not necessarily the same as the remote database name.
 For more information on database creation, see C<DB2::db>.  Also note DB2::db's
 requirement for DB2INSTANCE to be set.  You will need to set this in your own
 application script(s).
+
+=head1 CLEANUP
+
+CGI::Session does not seem to provide a way to automatically clean up old
+(expired) sessions unless they happen to get re-used somehow.  
+CGI::Session::DB2 has decided to implement saving an entire session's expiry
+as another column in the database table, using the timestamp type.  This
+should allow clean up to be as simple as:
+
+    if ($ARGV[0] and $ARGV[0] eq 'cleanup')
+    {
+        CGI::Session::DB2->cleanup($options);
+        exit(0);
+    }
+
+Call the cleanup option in a cron job or something, and everything should
+be cleaned up such that only sessions that are still valid would still
+exist.
 
 =head1 COPYRIGHT
 

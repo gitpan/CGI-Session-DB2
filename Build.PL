@@ -6,7 +6,7 @@ my $build = Module::Build->new
      module_name => 'CGI::Session::DB2',
      license => 'perl',
      requires => {
-         DB2::db => '0.19',
+         DB2::db => '0.20',
          CGI::Session => '3.95',
          perl => '5.8.0',
      },

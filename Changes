@@ -6,3 +6,13 @@ Revision history for CGI::Session::DB2
 0.02
         + Added more docs to the README.  Being released under the
           "release early, release often" ideology.
+
+0.03
+        + Added the ability to store timestamps for expiry.  This is
+          intended to be the expiry of the entire entry.  This allows
+          a simple SQL statement to remove expired sessions quickly,
+          rather than loading all data, thawing, and then figuring out
+          if it has expired.  NULL expiry means no expiry, just like
+          C::S expects.
+        + Added cleanup API
+
